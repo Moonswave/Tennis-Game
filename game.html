@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Title</title>
+  </head>
+  <body>
+    <h1>Sher ka Pahile Game</h1>
+
+    <canvas id="gameCanvas" width="800" height="600">
+      <h3>Player 1:</h3>
+      <h3>Player 2:</h3>
+    </canvas>
+
+    <script>
+      var canvas;
+      var canvasContext;
+      var ballX = 400;
+      var ballY = 300;
+      var ballSpeedX = 5;
+      var ballSpeedY = 5;
+      var paddle1Y = 300;
+      var paddle2Y = 300;
+      var paddleThick = 10;
+      var Score1 = 0;
+      var Score2 = 0;
+      var Win = false;
+
+
+      window.onload = function () {
+        console.log("Hello Aniruddha");
+        canvas = document.getElementById("gameCanvas");
+        canvasContext = canvas.getContext("2d");
+
+        var fps = 30;
+        setInterval(function () {
+          moveBall();
+          drawAll();
+        }, 1000 / fps);
+
+        canvas.addEventListener("mousemove", function (evt) {
+          var mousePos = MousePos(evt);
+          paddle1Y = mousePos.y - 50;
+        });
+      };
+
+      function drawAll() {
+        if (Win) {
+          if (Score1 == 5) {
+            canvasContext.fillStyle = "white";
+            canvasContext.fillText(
+              "You Wins",
+              canvas.width / 2,
+              canvas.height / 2
+            );
+            return;
+          } else if (Score2 == 5) {
+            canvasContext.fillStyle = "white";
+            canvasContext.fillText(
+              "HA HA YOU NOOB",
+              canvas.width / 2,
+              canvas.height / 2
+            );
+            return;
+          }
+        } else {
+          drawTiles(0, 0, canvas.width, canvas.height, "black");
+          drawTiles(0, paddle1Y, paddleThick, 100, "red");
+          drawTiles(
+            canvas.width - paddleThick,
+            paddle2Y,
+            paddleThick,
+            100,
+            "red"
+          );
+          drawCircle(ballX, ballY, 7, "white");
+          canvasContext.fillText(Score1, 100, 100);
+          canvasContext.fillText(Score2, canvas.width - 100, 100);
+          drawNet();
+        }
+      }
+
+      function drawNet() {
+        for (var i = 0; i < canvas.height; i += 40) {
+          drawTiles(canvas.width / 2, i, 5, 30, "white");
+        }
+      }
+
+      function drawTiles(leftX, topY, width, height, colour) {
+        canvasContext.fillStyle = colour;
+        canvasContext.fillRect(leftX, topY, width, height);
+      }
+
+      function drawCircle(centreX, centreY, radius, colour) {
+        canvasContext.fillStyle = colour;
+        canvasContext.beginPath();
+        canvasContext.arc(centreX, centreY, radius, 0, Math.PI * 2, true);
+        canvasContext.fill();
+      }
+
+      function moveBall() {
+        if (Win) {
+          return;
+        } else {
+          computerMovement();
+          ballX = ballX + ballSpeedX;
+          ballY = ballY + ballSpeedY;
+          if (ballX > canvas.width) {
+            if (ballY > paddle2Y && ballY < paddle2Y + 100) {
+              ballSpeedX = -ballSpeedX;
+              var newSpeed = ballY - (paddle2Y + 50);
+              ballSpeedY = newSpeed * 0.35;
+            } else {
+              Score1++;
+              ballReset();
+            }
+          }
+          if (ballX < 0) {
+            if (ballY > paddle1Y && ballY < paddle1Y + 100) {
+              ballSpeedX = -ballSpeedX;
+              var newSpeed = ballY - (paddle1Y + 50);
+              ballSpeedY = newSpeed * 0.35;
+            } else {
+              Score2++;
+              console.log(Score2);
+              ballReset();
+            }
+          }
+          if (ballY < 0 || ballY > canvas.height) {
+            ballSpeedY = -ballSpeedY;
+          }
+        }
+      }
+
+      function ballReset() {
+        if (Score1 == 5 || Score2 == 5) {
+          Win = true;
+        }
+        ballX = canvas.width / 2;
+        ballY = canvas.height / 2;
+      }
+
+      function MousePos(evt) {
+        var rect = canvas.getBoundingClientRect();
+        var root = document.documentElement;
+        var mouseX = evt.clientX - rect.left - root.scrollLeft;
+        var mouseY = evt.clientY - rect.top - root.scrollTop;
+        return {
+          x: mouseX,
+          y: mouseY,
+        };
+      }
+
+      function computerMovement() {
+        if (paddle2Y < ballY - 30) {
+          paddle2Y = paddle2Y + 8;
+        } else {
+          paddle2Y = paddle2Y - 8;
+        }
+      }
+    </script>
+  </body>
+</html>
